@@ -1,6 +1,4 @@
 # coding=utf-8
-
-import json
 import threading
 
 from autobahn.twisted.websocket import WebSocketClientFactory, \
@@ -9,6 +7,7 @@ from autobahn.twisted.websocket import WebSocketClientFactory, \
 from twisted.internet import reactor, ssl
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.internet.error import ReactorAlreadyRunning
+import ujson as json
 
 from binance.client import Client
 
@@ -85,7 +84,7 @@ class BinanceSocketManager(threading.Thread):
         self._conns = {}
         self._client = client
         self._user_timeout = user_timeout
-        self._timers = {'user': None, 'margin': None} 
+        self._timers = {'user': None, 'margin': None}
         self._listen_keys = {'user': None, 'margin': None}
         self._account_callbacks = {'user': None, 'margin': None}
         # Isolated margin sockets will be opened under the 'symbol' name
@@ -99,7 +98,10 @@ class BinanceSocketManager(threading.Thread):
         factory.protocol = BinanceClientProtocol
         factory.callback = callback
         factory.reconnect = True
-        context_factory = ssl.ClientContextFactory()
+        if factory.host.startswith('testnet.binance'):
+            context_factory = ssl.optionsForClientTLS(factory.host)
+        else:
+            context_factory = ssl.ClientContextFactory()
 
         self._conns[path] = connectWS(factory, context_factory)
         return path
@@ -118,7 +120,7 @@ class BinanceSocketManager(threading.Thread):
         self._conns[path] = connectWS(factory, context_factory)
         return path
 
-    def start_depth_socket(self, symbol, callback, depth=None):
+    def start_depth_socket(self, symbol, callback, depth=None, interval=None):
         """Start a websocket for symbol market depth returning either a diff or a partial book
 
         https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#partial-book-depth-streams
@@ -129,6 +131,8 @@ class BinanceSocketManager(threading.Thread):
         :type callback: function
         :param depth: optional Number of depth entries to return, default None. If passed returns a partial book instead of a diff
         :type depth: str
+        :param interval: optional interval for updates, default None. If not set, updates happen every second. Must be 0, None (1s) or 100 (100ms)
+        :type interval: int
 
         :returns: connection key string if successful, False otherwise
 
@@ -185,6 +189,11 @@ class BinanceSocketManager(threading.Thread):
         socket_name = symbol.lower() + '@depth'
         if depth and depth != '1':
             socket_name = '{}{}'.format(socket_name, depth)
+        if interval:
+            if interval in [0, 100]:
+                socket_name = '{}@{}ms'.format(socket_name, interval)
+            else:
+                raise ValueError("Websocket interval value not allowed. Allowed values are [0, 100]")
         return self._start_socket(socket_name, callback)
 
     def start_kline_socket(self, symbol, callback, interval=Client.KLINE_INTERVAL_1MINUTE):
@@ -332,6 +341,36 @@ class BinanceSocketManager(threading.Thread):
 
         """
         return self._start_socket(symbol.lower() + '@aggTrade', callback)
+
+    def start_aggtrade_futures_socket(self, symbol, callback):
+        """Start a websocket for aggregate symbol trade data for the futures stream
+
+        :param symbol: required
+        :type symbol: str
+        :param callback: callback function to handle messages
+        :type callback: function
+
+        :returns: connection key string if successful, False otherwise
+
+        Message Format
+
+        .. code-block:: python
+
+            {
+                "e": "aggTrade",  // Event type
+                "E": 123456789,   // Event time
+                "s": "BTCUSDT",    // Symbol
+                "a": 5933014,     // Aggregate trade ID
+                "p": "0.001",     // Price
+                "q": "100",       // Quantity
+                "f": 100,         // First trade ID
+                "l": 105,         // Last trade ID
+                "T": 123456785,   // Trade time
+                "m": true,        // Is the buyer the market maker?
+            }
+
+        """
+        return self._start_futures_socket(symbol.lower() + '@aggTrade', callback)
 
     def start_symbol_ticker_socket(self, symbol, callback):
         """Start a websocket for a symbol's ticker data
@@ -490,6 +529,24 @@ class BinanceSocketManager(threading.Thread):
             ]
         """
         return self._start_futures_socket(symbol.lower() + '@bookTicker', callback)
+    
+    def start_individual_symbol_ticker_futures_socket(self, symbol, callback):
+        """Start a futures websocket for a single symbol's ticker data
+        https://binance-docs.github.io/apidocs/futures/en/#individual-symbol-ticker-streams
+        :param symbol: required
+        :type symbol: str
+        :param callback: callback function to handle messages
+        :type callback: function
+        :returns: connection key string if successful, False otherwise
+        .. code-block:: python
+            {
+                "e": "24hrTicker",  // Event type
+                "E": 123456789,     // Event time
+                "s": "BTCUSDT",     // Symbol
+                "p": "0.0015",      // Price change
+            }
+        """
+        return self._start_futures_socket(symbol.lower() + '@ticker', callback)
 
     def start_all_ticker_futures_socket(self, callback):
         """Start a websocket for all ticker data
@@ -678,10 +735,12 @@ class BinanceSocketManager(threading.Thread):
             listen_key = listen_key_func()
         else:  # isolated margin
             listen_key_func = self._client.isolated_margin_stream_get_listen_key
-            callback = self._account_callbacks.get(socket_type, None)       
+            callback = self._account_callbacks.get(socket_type, None)
             listen_key = listen_key_func(socket_type)  # Passing symbol for islation margin
         if listen_key != self._listen_keys[socket_type]:
             self._start_account_socket(socket_type, listen_key, callback)
+        else:
+            self._start_socket_timer(socket_type)
 
     def stop_socket(self, conn_key):
         """Stop a websocket given the connection key
@@ -708,7 +767,7 @@ class BinanceSocketManager(threading.Thread):
         # if len(conn_key) >= 60 and conn_key[:60] == self._listen_keys['margin']:
         #     self._stop_account_socket('margin')
 
-        # NEW - Loop over keys in _listen_keys dictionary to find a match on 
+        # NEW - Loop over keys in _listen_keys dictionary to find a match on
         # user, cross-margin and isolated margin:
         for key, value in self._listen_keys.items():
             if len(conn_key) >= 60 and conn_key[:60] == value:

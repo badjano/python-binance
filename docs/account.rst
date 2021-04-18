@@ -9,7 +9,7 @@ Order Validation
 
 Binance has a number of rules around symbol pair orders with validation on minimum price, quantity and total order value.
 
-Read more about their specifics in the `Filters <https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#filters>`_
+Read more about their specifics in the `Filters <https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#filters>`_
 section of the official API.
 
 It can be helpful to format the output using the following snippet
@@ -90,7 +90,7 @@ Use the `create_oco_order` function to have full control over creating an OCO or
         side=SIDE_SELL,
         stopLimitTimeInForce=TIME_IN_FORCE_GTC,
         quantity=100,
-        stopPrice='0.00001'
+        stopPrice='0.00001',
         price='0.00002')
 
 
@@ -169,6 +169,13 @@ Account
 
     status = client.get_account_status()
 
+`Get account API trading status <binance.html#binance.client.Client.get_account_api_trading_status>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    status = client.get_account_api_trading_status()
+
 `Get trades <binance.html#binance.client.Client.get_my_trades>`_
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -215,3 +222,19 @@ Account
 .. code:: python
 
     history = client.get_asset_dividend_history()
+
+
+`Disable Fast Withdraw Switch <binance.html#binance.client.Client.disable_fast_withdraw_switch>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    client.disable_fast_withdraw_switch()
+
+
+`Enable Fast Withdraw Switch <binance.html#binance.client.Client.enable_fast_withdraw_switch>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    client.enable_fast_withdraw_switch()

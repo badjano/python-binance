@@ -1,14 +1,11 @@
-================================
-Welcome to python-binance v0.7.5
-================================
+=================================
+Welcome to python-binance v0.7.10
+=================================
 
 Note
 ----
 
-I am working on a python3 version with async support to remove legacy dependencies and their related issues.
-
-I would appreciate if you could try out the `feature/asyncio <https://github.com/sammchardy/python-binance/tree/feature/asyncio>`_ branch and give your feedback.
-
+this library is not under active development by sammchardy. however, the community has been actively contributing lots of PRs. If you find missing features please submit a PR. please keep PRs small and non-breaking.
 
 .. image:: https://img.shields.io/pypi/v/python-binance.svg
     :target: https://pypi.python.org/pypi/python-binance
@@ -28,7 +25,7 @@ I would appreciate if you could try out the `feature/asyncio <https://github.com
 .. image:: https://img.shields.io/pypi/pyversions/python-binance.svg
     :target: https://pypi.python.org/pypi/python-binance
 
-This is an unofficial Python wrapper for the `Binance exchange REST API v1/3 <https://github.com/binance-exchange/binance-official-api-docs>`_. I am in no way affiliated with Binance, use at your own risk.
+This is an unofficial Python wrapper for the `Binance exchange REST API v3 <https://github.com/binance/binance-spot-api-docs>`_. I am in no way affiliated with Binance, use at your own risk.
 
 If you came here looking for the `Binance exchange <https://www.binance.com/?ref=10099792>`_ to purchase cryptocurrencies, then `go here <https://www.binance.com/?ref=10099792>`_. If you want to automate interactions with Binance stick around.
 
@@ -67,9 +64,9 @@ Features
 Quick Start
 -----------
 
-`Register an account with Binance <https://www.binance.com/register.html?ref=10099792>`_.
+`Register an account with Binance <https://accounts.binance.com/en/register?ref=10099792>`_.
 
-`Generate an API Key <https://www.binance.com/userCenter/createApi.html>`_ and assign relevant permissions.
+`Generate an API Key <https://www.binance.com/en/my/settings/api-management>`_ and assign relevant permissions.
 
 .. code:: bash
 
@@ -161,4 +158,4 @@ If you use `Kucoin <https://www.kucoin.com/?rcode=E42cWB>`_ check out my `python
 
 If you use `IDEX <https://idex.market>`_ check out my `python-idex <https://github.com/sammchardy/python-idex>`_ library.
 
-.. image:: https://analytics-pixel.appspot.com/UA-111417213-1/github/python-binance?pixel&useReferer
+.. image:: https://ga-beacon.appspot.com/UA-111417213-1/github/python-binance?pixel&useReferer

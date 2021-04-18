@@ -2,7 +2,7 @@
 
  > * Before using the endpoints, please check the [API documentation](https://binance-docs.github.io/apidocs/#change-log) to be informed about the latest changes or possible bugs/problems. 
 
- > * Not all parameters are mendatory. Some parameters are only mendatory in specific conditions/types. Check the official documentation the type of each parameter and to know if a parameter is mendatory or optional. 
+ > * Not all parameters are mandatory. Some parameters are only mandatory in specific conditions/types. Check the official documentation the type of each parameter and to know if a parameter is mandatory or optional. 
 
  > * This documentation only includes methods in client.py file. Websocket methods haven't (yet) been covered.
  
@@ -13,17 +13,21 @@
     client.get_system_status()
     ```
   - **GET /sapi/v1/capital/config/getall (HMAC SHA256)** (Get information of coins (available for deposit and withdraw) for user.)
-   
-    > :warning: Not yet implemented
+    ```python 
+    client.get_all_coins_info()
+    ```
   - **GET /sapi/v1/accountSnapshot (HMAC SHA256)** (Daily Account Snapshot (USER_DATA).)
-  
-    > :warning: Not yet implemented 
+    ```python 
+    client.get_account_snapshot(type='SPOT')
+    ```
   - **POST /sapi/v1/account/disableFastWithdrawSwitch (HMAC SHA256)** (Disable Fast Withdraw Switch (USER_DATA).)
-  
-    > :warning: Not yet implemented  
+    ```python 
+    client.disable_fast_withdraw_switch(type='SPOT')
+    ``` 
   - **POST /sapi/v1/account/enableFastWithdrawSwitch (HMAC SHA256)** (Enable Fast Withdraw Switch (USER_DATA).)
-  
-    > :warning: Not yet implemented  
+    ```python 
+    client.enable_fast_withdraw_switch(type='SPOT')
+    ```
   - **POST /sapi/v1/capital/withdraw/apply (HMAC SHA256)** (Withdraw [SAPI]: Submit a withdraw request.)
   
     > :warning: Not yet implemented  
@@ -65,8 +69,9 @@
     client.get_account_status(recvWindow)
     ```
   - **GET /wapi/v3/apiTradingStatus.html** (Fetch account api trading status detail.)
-  
-    > :warning: Not yet implemented  
+    ```python 
+    client.get_account_api_trading_status(recvWindow)
+    ```
   - **GET /wapi/v3/userAssetDribbletLog.html (HMAC SHA256)** (DustLog: Fetch small amounts of assets exchanged BNB records.)
     ```python 
     client.get_dust_log(recvWindow)
@@ -382,8 +387,10 @@
         recvWindow)
     ```
   - **GET /sapi/v1/margin/transfer (HMAC SHA256)** (Get Cross Margin Transfer History (USER_DATA).)
-  
-    > :warning: Not yet implemented
+    ```python 
+    client.transfer_margin_to_spot(asset, amount, recvWindow)
+    client.transfer_spot_to_margin(asset, amount, recvWindow)
+    ```
   - **GET /sapi/v1/margin/loan (HMAC SHA256)** (Query Loan Record (USER_DATA).)
     ```python 
     client.get_margin_loan_details(asset, isolatedSymbol, txId, startTime, endTime, current, size, recvWindow)
@@ -439,8 +446,9 @@
   
     > :warning: Not yet implemented
   - **GET /sapi/v1/margin/isolated/account (HMAC SHA256)** (Query Isolated Margin Account Info (USER_DATA).)
-  
-    > :warning: Not yet implemented
+    ```python
+    client.get_isolated_margin_account(symbols, recvWindow)
+    ```
   - **GET /sapi/v1/margin/isolated/pair (HMAC SHA256)** (Query Isolated Margin Symbol (USER_DATA).)
     ```python
     client.get_isolated_margin_symbol(symbol, recvWindow)
@@ -512,8 +520,9 @@
     client.get_lending_position(asset, recvWindow)
     ```
   - **GET /sapi/v1/lending/project/list (HMAC SHA256)** (Get Fixed and Activity Project List (USER_DATA).)
-
-    > :warning: Not yet implemented
+    ```python 
+    client.get_fixed_activity_project_list(asset, type, status, isSortAsc, sortBy, current, size, recvWindow)
+    ```
   - **POST /sapi/v1/lending/customizedFixed/purchase (HMAC SHA256)** (Purchase Fixed/Activity Project (USER_DATA).)
 
     > :warning: Not yet implemented
@@ -537,8 +546,9 @@
     client.get_lending_interest_history(lendingType, asset, startTime, endTime, current, size, recvWindow)
     ```
   - **POST /sapi/v1/lending/positionChanged (HMAC SHA256)** (Change Fixed/Activity Position to Daily Position (USER_DATA).)
-
-    > :warning: Not yet implemented
+    ```python 
+    client.change_fixed_activity_to_daily_position(projectId, lot, positionId, recvWindow)
+    ```
 - *Mining Endpoints*
     > :warning: Not yet implemented
 - *Sub-Account Endpoints*
@@ -650,18 +660,21 @@
     > :warning: Not yet implemented
 - *Account/trades Endpoints*
   - **POST /sapi/v1/futures/transfer (HMAC SHA256)** (New Future Account Transfer (FUTURES): Execute transfer between spot account and futures account.)
-
-    > :warning: Not yet implemented
+    ```python 
+    client.futures_account_transfer(asset, amount, type, recvWindow)
+    ```
   - **GET /sapi/v1/futures/transfer (HMAC SHA256)** (Get Future Account Transaction History List (USER_DATA).)
     ```python 
     client.transfer_history(asset, startTime, endTime, current, size, recvWindow)
     ```
   - **POST /fapi/v1/positionSide/dual (HMAC SHA256)** (Change user's position mode (Hedge Mode or One-way Mode ) on _**EVERY symbol**_.)
-
-    > :warning: Not yet implemented
+    ```python 
+    client.futures_change_position_mode(dualSidePosition, recvWindow)
+    ```
   - **GET /fapi/v1/positionSide/dual (HMAC SHA256)** (Get user's position mode (Hedge Mode or One-way Mode ) on _**EVERY symbol**_.)
-
-    > :warning: Not yet implemented
+    ```python 
+    client.futures_get_position_mode(recvWindow)
+    ```
   - **POST /fapi/v1/order (HMAC SHA256)** (Send in a new order (TRADE).)
     ```python 
     client.futures_create_order(symbol, 
